@@ -3,8 +3,6 @@ const display = document.querySelector('.display');
 
 btns.forEach(btn => btn.addEventListener('click', userInput));
 
-//test
-
 let a = "";
 let b = "";
 let operator = "";
@@ -13,35 +11,22 @@ let result = "";
 function userInput() {
 
     const input = this.textContent;
+    this.style.boxShadow = '0px 0px 5px #666666';
+    setTimeout(() => {this.style.boxShadow = ''}, 100);
 
-    if (!isNaN(input)) {
-        if (operator === "") {
-            a += input;
-            display.textContent = a;
+    if (/^[0-9.]$/.test(input)) {
+        if (operator) {
+            b = buildNumber(b, input);
         } else {
-            b += input;
-            display.textContent = b;
+            a = buildNumber(a, input);
         }
-    } else if (input === ".") {
-        if (operator === "" && !a.includes(input)) {
-            a += input;
-            display.textContent = a;
-        } else if (!b.includes(input)) {
-            b += input;
-            display.textContent = b;
-        }
-    } else if (["+", "-", "x", "÷"].includes(input)) {
-        if (operator === "") {
-            operator = input;
-        } else {
-            // if an operator has previously been selected, run the operation
+    } else if (/^[+\-x÷]$/.test(input)) {
+        if (operator) {
             a = operate();
-            display.textContent = a;
-            // Assign the new operator from user input
-            operator = input;
-            // Clear b so that the next number will be assigned to b
             b = "";
+            display.textContent = a;
         }
+        operator = input;
     } else if (input === "=") {
         a = operate()
         display.textContent = a;
@@ -64,8 +49,8 @@ const operate = () => {
 
     a = Number(a);
     b = Number(b);
-    console.log(a, b);
 
+    console.log(a, operator, b);
 
     if (operator === "+") {
         return add(a, b);
@@ -78,14 +63,7 @@ const operate = () => {
     } else if (operator === "%") {
         return percentage(a, b);
     }
-}
 
-const round = number => {
-    if (number.toString().includes(".") && number.toString().split(".")[1].length > 5) {
-        return parseFloat(number.toFixed(5));
-    } else {
-        return number;
-    }
 }
 
 const add = (a, b) => a + b;
@@ -97,9 +75,24 @@ const multiply = (a, b) => round(a * b);
 const divide = (a, b) => round(a / b);
 
 const percentage = (a, b) => {
-    if (b === 0) {
+    if (!b) {
         return a * 0.01;
     } else {
         return b * 0.01;
     }
+}
+
+const round = number => {
+    if (number.toString().includes(".") && number.toString().split(".")[1].length > 5) {
+        return parseFloat(number.toFixed(5));
+    } else {
+        return number;
+    }
+}
+
+function buildNumber(i, j) {
+    if (j === "." && i.includes(j)) return i;
+    i += j;
+    display.textContent = i;
+    return i;
 }
